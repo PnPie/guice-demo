@@ -76,6 +76,13 @@ public class AppModule extends AbstractModule {
         binder.bind(NamedService.class).annotatedWith(Names.named("impl2")).to(NamedServiceImpl2.class);
     }
 
+    /**
+     * {@link Provides}注释的作用: 当{@link Injector}需要List<NamedService>实例时,
+     * 调用此方法,获取对象
+     * @param nameService1
+     * @param nameService2
+     * @return
+     */
     @Provides
     public List<NamedService> getAllItemServices(@Named("impl1") NamedService nameService1,
                                                  @Named("impl2") NamedService nameService2) {

@@ -5,6 +5,8 @@ import com.github.greengerong.item.ItemService;
 import com.github.greengerong.item.ItemServiceImpl1;
 import com.github.greengerong.item.ItemServiceImpl2;
 import com.github.greengerong.named.NamedService;
+import com.github.greengerong.named.NamedServiceImpl1;
+import com.github.greengerong.named.NamedServiceImpl2;
 import com.github.greengerong.order.Order;
 import com.github.greengerong.order.OrderService;
 import com.github.greengerong.order.OrderServiceImpl;
@@ -112,13 +114,15 @@ public class AppModuleTest {
 
     @Test
     public void should_get_named_service_with_Provides_bean() throws Exception {
-        //given
-
-        //when
+        /**
+         * injector需要List<NamedService>的实例,Module中并没有绑定,
+         * 但却在{@link com.google.inject.Provides}中提供.
+         */
         final List<NamedService> namedServices = injector.getInstance(new Key<List<NamedService>>() {
         });
-        //then
 
         assertThat(namedServices.size(), is(2));
+        assertThat(namedServices.get(0), is(instanceOf(NamedServiceImpl1.class)));
+        assertThat(namedServices.get(1), is(instanceOf(NamedServiceImpl2.class)));
     }
 }
