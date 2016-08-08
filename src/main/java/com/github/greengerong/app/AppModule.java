@@ -40,6 +40,12 @@ public class AppModule extends AbstractModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppModule.class);
     private final RuntimeServiceImpl runtimeService;
 
+    /**
+     * AppModule类对象对RuntimeServiceImpl实例的依赖可以通过Guice的Injector自动创建加载
+     *
+     * @param runtimeService
+     */
+    @Inject
     public AppModule(RuntimeServiceImpl runtimeService) {
         this.runtimeService = runtimeService;
     }
@@ -51,7 +57,9 @@ public class AppModule extends AbstractModule {
             binder.bindInterceptor(any(), any(), exception());
         }
         //TODO: bind interface
+        //在整个应用程序生命周期,OrderService的实例为单例
         binder.bind(OrderService.class).to(OrderServiceImpl.class).in(SINGLETON);
+
         //TODO: bind self class(without interface or base class)
         binder.bind(PriceService.class).in(Scopes.SINGLETON);
 

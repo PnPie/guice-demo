@@ -23,16 +23,20 @@ public class OrderServiceImpl implements OrderService {
     private Set<ItemService> itemServices;
     private PriceService priceService;
 
-    public OrderServiceImpl() {
-    }
+//    public OrderServiceImpl() {
+//    }
 
+    /**
+     * 如果使用Guice创建对象,则调用{@link Inject}注释的构造函数,因此会自动创建并加载两个依赖
+     * @param itemServices 依赖
+     * @param priceService 依赖
+     */
     @Inject
     public OrderServiceImpl(Set<ItemService> itemServices, PriceService priceService) {
         this.itemServices = itemServices;
         this.priceService = priceService;
     }
 
-    @Override
     public void add(Order order) {
         for (ItemService item : itemServices) {
             item.get(0);
@@ -40,11 +44,9 @@ public class OrderServiceImpl implements OrderService {
         priceService.getPrice();
     }
 
-    @Override
     public void remove(Order order) {
     }
 
-    @Override
     public Order get(int id) {
         for (ItemService item : itemServices) {
             item.get(id);

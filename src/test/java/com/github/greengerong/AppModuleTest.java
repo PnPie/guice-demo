@@ -1,16 +1,16 @@
 package com.github.greengerong;
 
 import com.github.greengerong.app.AppModule;
-import com.github.greengerong.named.NamedService;
-import com.github.greengerong.price.PriceService;
-import com.github.greengerong.runtime.RuntimeService;
-import com.github.greengerong.runtime.RuntimeServiceImpl;
 import com.github.greengerong.item.ItemService;
 import com.github.greengerong.item.ItemServiceImpl1;
 import com.github.greengerong.item.ItemServiceImpl2;
+import com.github.greengerong.named.NamedService;
 import com.github.greengerong.order.Order;
 import com.github.greengerong.order.OrderService;
 import com.github.greengerong.order.OrderServiceImpl;
+import com.github.greengerong.price.PriceService;
+import com.github.greengerong.runtime.RuntimeService;
+import com.github.greengerong.runtime.RuntimeServiceImpl;
 import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -18,36 +18,46 @@ import com.google.inject.Key;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 
 public class AppModuleTest {
 
     private Injector injector;
 
+    /**
+     * 执行每一个{@link Test}方法之前执行{@link Before}
+     *
+     * @throws Exception
+     */
     @Before
     public void setUp() throws Exception {
-        injector = Guice.createInjector(new AppModule(new RuntimeServiceImpl()));
+        injector = Guice.createInjector(Guice.createInjector().getInstance(AppModule.class));
     }
 
     @Test
     public void should_get_order_service_from_guice_module() throws Exception {
-        //given
-        //when
-        final OrderService instance = injector.getInstance(OrderService.class);
+        /**
+         * 由于OrderService的实例在Module中绑定时被定义为SINGLETON,
+         * 所以injector获取到的实例为同一个
+         */
+        final OrderService instance0 = injector.getInstance(OrderService.class);
+        final OrderService instance1 = injector.getInstance(OrderService.class);
         //then
-        assertThat(instance, is(instanceOf(OrderServiceImpl.class)));
-        final List<ItemService> itemServices = Lists.newArrayList(((OrderServiceImpl) instance).getItemServices());
+        assertThat(instance0, is(instanceOf(OrderServiceImpl.class)));
+        assertSame(instance0, instance1);
+
+        final List<ItemService> itemServices = Lists.newArrayList(((OrderServiceImpl) instance0).getItemServices());
         assertThat(itemServices.get(0), is(instanceOf(ItemServiceImpl1.class)));
         assertThat(itemServices.get(1), is(instanceOf(ItemServiceImpl2.class)));
-        assertThat(((OrderServiceImpl) instance).getPriceService(), is(instanceOf(PriceService.class)));
-        instance.add(new Order(100));
+        assertThat(((OrderServiceImpl) instance0).getPriceService(), is(instanceOf(PriceService.class)));
+        instance0.add(new Order(100));
     }
 
     @Test
