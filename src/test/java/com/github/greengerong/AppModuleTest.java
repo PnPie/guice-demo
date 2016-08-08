@@ -42,7 +42,7 @@ public class AppModuleTest {
     }
 
     @Test
-    public void should_get_order_service_from_guice_module() throws Exception {
+    public void basicInjectionTest() throws Exception {
         /**
          * 由于OrderService的实例在Module中绑定时被定义为SINGLETON,
          * 所以injector获取到的实例为同一个
@@ -51,49 +51,61 @@ public class AppModuleTest {
         final OrderService instance1 = injector.getInstance(OrderService.class);
         //then
         assertThat(instance0, is(instanceOf(OrderServiceImpl.class)));
+        assertThat(instance0, is(instanceOf(OrderService.class)));
         assertSame(instance0, instance1);
 
-        final List<ItemService> itemServices = Lists.newArrayList(((OrderServiceImpl) instance0).getItemServices());
+        /**
+         * OrderServiceImpl的构造方法被{@link com.google.inject.Inject}注释,
+         * 因此Injector会自动注入依赖
+         * 由于ItemService绑定了Multibinder,所以自动创建Set<ItemService>实例
+         *
+         */
+        final Set<ItemService> itemServiceSet = ((OrderServiceImpl) instance0).getItemServices();
+        final List<ItemService> itemServices = Lists.newArrayList(itemServiceSet);
+        assertThat(itemServices.size(), is(2));
         assertThat(itemServices.get(0), is(instanceOf(ItemServiceImpl1.class)));
+        assertThat(itemServices.get(0), is(instanceOf(ItemService.class)));
         assertThat(itemServices.get(1), is(instanceOf(ItemServiceImpl2.class)));
         assertThat(((OrderServiceImpl) instance0).getPriceService(), is(instanceOf(PriceService.class)));
         instance0.add(new Order(100));
     }
 
     @Test
-    public void should_get_all_item_service() throws Exception {
-        //given
+    public void keyInjectionTest() throws Exception {
 
-        //when
-        final List<ItemService> instance = Lists.newArrayList(
-                injector.getInstance(new Key<Set<ItemService>>() {
-                })
-        );
+        /**
+         * Key<T>的继承式匿名内部类
+         * Key中保存了要注入类的类型
+         */
+        final Key<Set<ItemService>> setKey = new Key<Set<ItemService>>() {
+        };
+
+        //injector还可以通过Key<T>获取实例
+        final Set<ItemService> itemServiceSet = injector.getInstance(setKey);
+
+        final List<ItemService> itemServiceList = Lists.newArrayList(itemServiceSet);
+
         //then
-        assertThat(instance.size(), is(2));
-        assertThat(instance.get(0), is(instanceOf(ItemServiceImpl1.class)));
-        assertThat(instance.get(1), is(instanceOf(ItemServiceImpl2.class)));
+        assertThat(itemServiceList.size(), is(2));
+        assertThat(itemServiceList.get(0), is(instanceOf(ItemServiceImpl1.class)));
+        assertThat(itemServiceList.get(1), is(instanceOf(ItemServiceImpl2.class)));
     }
 
     @Test
-    public void should_register_service_runtime() throws Exception {
-        //given
+    public void bindToInstanceTest() throws Exception {
 
-        //when
-        final RuntimeService instance = injector.getInstance(RuntimeService.class);
-        //then
+        final RuntimeService instance = injector.getInstance(new Key<RuntimeService>() {
+        });
 
         assertThat(instance, is(instanceOf(RuntimeServiceImpl.class)));
     }
 
     @Test
-    public void should_be_singleton_for_one_without_interface_bean() throws Exception {
-        //given
+    public void singletonTest() throws Exception {
 
-        //when
+        // PriceService在Module中被定义为Singleton
         final PriceService first = injector.getInstance(PriceService.class);
         final PriceService second = injector.getInstance(PriceService.class);
-        //then
 
         assertThat(first, is(sameInstance(second)));
     }

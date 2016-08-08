@@ -28,7 +28,9 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 如果使用Guice创建对象,则调用{@link Inject}注释的构造函数,因此会自动创建并加载两个依赖
-     * @param itemServices 依赖
+     *
+     * @param itemServices ItemService被绑定到了一个Multibinder with a Set of implementations,
+     *                     因此Guice的Injector可以自动创建并加载一个Set<ItemService>对象
      * @param priceService 依赖
      */
     @Inject

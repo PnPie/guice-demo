@@ -11,7 +11,6 @@ import com.github.greengerong.order.OrderServiceImpl;
 import com.github.greengerong.price.PriceService;
 import com.github.greengerong.runtime.RuntimeService;
 import com.github.greengerong.runtime.RuntimeServiceImpl;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.*;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
@@ -23,7 +22,6 @@ import java.util.List;
 
 import static com.github.greengerong.app.ExceptionMethodInterceptor.exception;
 import static com.google.common.collect.ImmutableList.of;
-import static com.google.inject.Scopes.SINGLETON;
 import static com.google.inject.matcher.Matchers.any;
 
 /**
@@ -58,17 +56,19 @@ public class AppModule extends AbstractModule {
         }
         //TODO: bind interface
         //在整个应用程序生命周期,OrderService的实例为单例
-        binder.bind(OrderService.class).to(OrderServiceImpl.class).in(SINGLETON);
+        binder.bind(OrderService.class).to(OrderServiceImpl.class).in(Scopes.SINGLETON);
 
         //TODO: bind self class(without interface or base class)
+        //直接绑定一个类,让Guice可以注入,且为单例!!!
         binder.bind(PriceService.class).in(Scopes.SINGLETON);
 
         //TODO: Multibinder
+        // A multibinder binds the Set of implementations to the given type(interface)
         final Multibinder<ItemService> itemServiceMultibinder = Multibinder.newSetBinder(binder, ItemService.class);
         itemServiceMultibinder.addBinding().to(ItemServiceImpl1.class);
         itemServiceMultibinder.addBinding().to(ItemServiceImpl2.class);
 
-        //TODO: bind instance not class.
+        //TODO: bind to instance not class.
         binder.bind(RuntimeService.class).toInstance(runtimeService);
 
         //TODO: bind named instance;
