@@ -14,9 +14,7 @@ import com.github.greengerong.price.PriceService;
 import com.github.greengerong.runtime.RuntimeService;
 import com.github.greengerong.runtime.RuntimeServiceImpl;
 import com.google.common.collect.Lists;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
+import com.google.inject.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +28,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 
 public class AppModuleTest {
-
     private Injector injector;
 
     /**
@@ -40,7 +37,7 @@ public class AppModuleTest {
      */
     @Before
     public void setUp() throws Exception {
-        injector = Guice.createInjector(Guice.createInjector().getInstance(AppModule.class));
+        injector = Guice.createInjector(Guice.createInjector(Stage.DEVELOPMENT).getInstance(AppModule.class));
     }
 
     @Test
@@ -79,11 +76,11 @@ public class AppModuleTest {
          * Key<T>的继承式匿名内部类
          * Key中保存了要注入类的类型
          */
-        final Key<Set<ItemService>> setKey = new Key<Set<ItemService>>() {
+        final Key<Set<ItemService>> key = new Key<Set<ItemService>>() {
         };
 
         //injector还可以通过Key<T>获取实例
-        final Set<ItemService> itemServiceSet = injector.getInstance(setKey);
+        final Set<ItemService> itemServiceSet = injector.getInstance(key);
 
         final List<ItemService> itemServiceList = Lists.newArrayList(itemServiceSet);
 
